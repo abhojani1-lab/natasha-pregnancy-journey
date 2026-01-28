@@ -12,6 +12,8 @@ import {
   Sparkles,
   Plus,
   X,
+  Home,
+  MoreHorizontal,
 } from 'lucide-react'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import ModalForm from './ModalForm'
@@ -132,15 +134,20 @@ export default function PregnancyJourneyApp() {
   }
 
   const tabs = [
-    { id: 'home' as TabId, label: 'Home', icon: Sparkles },
-    { id: 'symptoms' as TabId, label: 'Symptoms', icon: Activity },
-    { id: 'photos' as TabId, label: 'Photos', icon: Camera },
-    { id: 'appointments' as TabId, label: 'Appointments', icon: Calendar },
-    { id: 'journal' as TabId, label: 'Journal', icon: BookOpen },
-    { id: 'checklist' as TabId, label: 'To-Do', icon: CheckSquare },
-    { id: 'kicks' as TabId, label: 'Kick Counter', icon: Heart },
-    { id: 'contractions' as TabId, label: 'Contractions', icon: Clock },
+    { id: 'home' as TabId, label: 'Home', shortLabel: 'Home', icon: Home },
+    { id: 'symptoms' as TabId, label: 'Symptoms', shortLabel: 'Symptoms', icon: Activity },
+    { id: 'photos' as TabId, label: 'Photos', shortLabel: 'Photos', icon: Camera },
+    { id: 'appointments' as TabId, label: 'Appointments', shortLabel: 'Appts', icon: Calendar },
+    { id: 'journal' as TabId, label: 'Journal', shortLabel: 'Journal', icon: BookOpen },
+    { id: 'checklist' as TabId, label: 'To-Do', shortLabel: 'To-Do', icon: CheckSquare },
+    { id: 'kicks' as TabId, label: 'Kick Counter', shortLabel: 'Kicks', icon: Heart },
+    { id: 'contractions' as TabId, label: 'Contractions', shortLabel: 'Timer', icon: Clock },
   ]
+
+  // Bottom nav shows 5 tabs max, with "More" for overflow
+  const bottomNavTabs = tabs.slice(0, 4)
+  const moreTabs = tabs.slice(4)
+  const [showMoreMenu, setShowMoreMenu] = useState(false)
 
   return (
     <div
@@ -183,10 +190,12 @@ export default function PregnancyJourneyApp() {
       <div style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <header
+          className="mobile-header"
           style={{
             background:
               'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,240,245,0.95) 100%)',
             backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
             padding: '1.5rem 2rem',
             boxShadow: '0 2px 20px rgba(255,182,193,0.15)',
             position: 'sticky',
@@ -208,39 +217,45 @@ export default function PregnancyJourneyApp() {
             >
               <h1
                 style={{
-                  fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+                  fontSize: 'clamp(1.25rem, 4vw, 2.5rem)',
                   color: '#d4757d',
                   margin: 0,
                   fontWeight: '600',
                   letterSpacing: '0.5px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem',
+                  gap: '0.5rem',
+                  lineHeight: 1.2,
                 }}
               >
-                <Heart fill="#d4757d" color="#d4757d" size={32} />
-                Natasha&apos;s Pregnancy Journey
+                <Heart fill="#d4757d" color="#d4757d" style={{ width: 'clamp(24px, 4vw, 32px)', height: 'clamp(24px, 4vw, 32px)', flexShrink: 0 }} />
+                <span style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span className="hide-mobile" style={{ display: 'inline' }}>Natasha&apos;s Pregnancy Journey</span>
+                  <span className="show-mobile-only" style={{ display: 'none' }}>Natasha&apos;s Journey</span>
+                </span>
               </h1>
               <div
+                className="week-badge"
                 style={{
                   textAlign: 'right',
                   padding: '0.75rem 1.5rem',
                   background: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)',
-                  borderRadius: '20px',
+                  borderRadius: '16px',
                   boxShadow: '0 4px 15px rgba(255,182,193,0.2)',
+                  minWidth: '70px',
                 }}
               >
                 <div
                   style={{
-                    fontSize: '0.875rem',
+                    fontSize: 'clamp(0.7rem, 2vw, 0.875rem)',
                     color: '#ad1457',
-                    marginBottom: '0.25rem',
+                    marginBottom: '0.125rem',
                     fontWeight: '500',
                   }}
                 >
                   Week
                 </div>
-                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#d4757d', lineHeight: 1 }}>
+                <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: '700', color: '#d4757d', lineHeight: 1 }}>
                   {currentWeek}
                 </div>
               </div>
@@ -287,11 +302,13 @@ export default function PregnancyJourneyApp() {
           </div>
         </header>
 
-        {/* Navigation */}
+        {/* Navigation - Hidden on mobile, shown on desktop */}
         <nav
+          className="top-nav"
           style={{
             background: 'rgba(255,255,255,0.8)',
             backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
             padding: '0.75rem 2rem',
             boxShadow: '0 2px 15px rgba(255,182,193,0.1)',
             position: 'sticky',
@@ -354,7 +371,7 @@ export default function PregnancyJourneyApp() {
         </nav>
 
         {/* Main Content */}
-        <main style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 2rem' }}>
+        <main className="mobile-main" style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 2rem' }}>
           {activeTab === 'home' && (
             <HomeTab
               currentWeek={currentWeek}
@@ -398,12 +415,13 @@ export default function PregnancyJourneyApp() {
               bottom: 0,
               background: 'rgba(0,0,0,0.5)',
               backdropFilter: 'blur(5px)',
+              WebkitBackdropFilter: 'blur(5px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 1000,
             }}
-            className="animate-fadeIn"
+            className="animate-fadeIn mobile-modal-overlay"
             onClick={closeModal}
           >
             <div
@@ -417,7 +435,7 @@ export default function PregnancyJourneyApp() {
                 overflow: 'auto',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
               }}
-              className="animate-slideUp"
+              className="animate-slideUp mobile-modal-content"
               onClick={(e) => e.stopPropagation()}
             >
               <div
@@ -458,6 +476,66 @@ export default function PregnancyJourneyApp() {
             </div>
           </div>
         )}
+
+        {/* Bottom Navigation - Mobile Only */}
+        <nav className="bottom-nav">
+          {bottomNavTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id)
+                setShowMoreMenu(false)
+              }}
+              className={`bottom-nav-item ${activeTab === tab.id ? 'active' : ''}`}
+            >
+              <tab.icon
+                size={22}
+                color={activeTab === tab.id ? '#d4757d' : '#8d6e63'}
+                fill={activeTab === tab.id && tab.id === 'home' ? '#d4757d' : 'none'}
+              />
+              <span className="bottom-nav-label">{tab.shortLabel}</span>
+            </button>
+          ))}
+
+          {/* More button for overflow tabs */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowMoreMenu(!showMoreMenu)}
+              className={`bottom-nav-item ${moreTabs.some(t => t.id === activeTab) ? 'active' : ''}`}
+            >
+              <MoreHorizontal
+                size={22}
+                color={moreTabs.some(t => t.id === activeTab) ? '#d4757d' : '#8d6e63'}
+              />
+              <span className="bottom-nav-label">More</span>
+            </button>
+
+            {/* More menu popup */}
+            {showMoreMenu && (
+              <>
+                <div
+                  className="backdrop-overlay"
+                  onClick={() => setShowMoreMenu(false)}
+                />
+                <div className="more-menu animate-slideUp">
+                  {moreTabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id)
+                        setShowMoreMenu(false)
+                      }}
+                      className={`more-menu-item ${activeTab === tab.id ? 'active' : ''}`}
+                    >
+                      <tab.icon size={18} color={activeTab === tab.id ? '#d4757d' : '#8d6e63'} />
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </nav>
       </div>
     </div>
   )
@@ -488,9 +566,10 @@ function HomeTab({
   ]
 
   return (
-    <div className="animate-fadeIn" style={{ display: 'grid', gap: '2rem' }}>
+    <div className="animate-fadeIn" style={{ display: 'grid', gap: 'clamp(1rem, 3vw, 2rem)' }}>
       {/* Welcome Message */}
       <div
+        className="mobile-card"
         style={{
           background:
             'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,240,245,0.95) 100%)',
@@ -498,21 +577,22 @@ function HomeTab({
           padding: '2rem',
           boxShadow: '0 4px 20px rgba(212,117,125,0.1)',
           border: '1px solid rgba(255,182,193,0.2)',
-          marginBottom: '2rem',
+          marginBottom: 'clamp(0.5rem, 2vw, 2rem)',
           textAlign: 'center',
         }}
       >
         <h2
+          className="section-title"
           style={{
             color: '#d4757d',
             margin: '0 0 0.75rem 0',
-            fontSize: '2rem',
+            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
             fontWeight: '600',
           }}
         >
           Welcome, Natasha!
         </h2>
-        <p style={{ color: '#8d6e63', margin: 0, fontSize: '1.1rem', lineHeight: '1.6' }}>
+        <p style={{ color: '#8d6e63', margin: 0, fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', lineHeight: '1.6' }}>
           This is your special place to document every precious moment of your pregnancy journey.
           From first symptoms to baby&apos;s first kicks, capture it all here.
         </p>
@@ -520,10 +600,11 @@ function HomeTab({
 
       {/* Hero Card */}
       <div
+        className="mobile-hero-card"
         style={{
           background:
             'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(252,228,236,0.95) 100%)',
-          borderRadius: '24px',
+          borderRadius: 'clamp(16px, 3vw, 24px)',
           padding: '3rem',
           boxShadow: '0 8px 32px rgba(212,117,125,0.15)',
           border: '1px solid rgba(255,182,193,0.3)',
@@ -554,13 +635,14 @@ function HomeTab({
               flexWrap: 'wrap',
             }}
           >
-            <div className="animate-float" style={{ fontSize: '4rem' }}>
+            <div className="animate-float" style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)' }}>
               {currentWeekData.sizeEmoji}
             </div>
             <div>
               <h2
+                className="week-title"
                 style={{
-                  fontSize: '2.5rem',
+                  fontSize: 'clamp(1.75rem, 5vw, 2.5rem)',
                   color: '#d4757d',
                   margin: '0 0 0.5rem 0',
                   fontWeight: '600',
@@ -568,13 +650,14 @@ function HomeTab({
               >
                 Week {currentWeek}
               </h2>
-              <p style={{ fontSize: '1.5rem', color: '#8d6e63', margin: 0, fontStyle: 'italic' }}>
+              <p className="baby-size-text" style={{ fontSize: 'clamp(1rem, 3vw, 1.5rem)', color: '#8d6e63', margin: 0, fontStyle: 'italic' }}>
                 Baby is the size of a {currentWeekData.size}
               </p>
             </div>
           </div>
 
           <div
+            className="info-cards-grid"
             style={{
               display: 'grid',
               gap: '1.5rem',
@@ -657,28 +740,34 @@ function HomeTab({
 
       {/* Quick Actions */}
       <div
+        className="quick-actions-grid"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '1.5rem',
+          gap: 'clamp(0.75rem, 2vw, 1.5rem)',
         }}
       >
         {quickActions.map((action, idx) => (
           <button
             key={idx}
             onClick={action.action}
-            className={`animate-fadeInUp delay-${(idx + 1) * 100}`}
+            className={`animate-fadeInUp delay-${(idx + 1) * 100} tap-highlight`}
             style={{
               background:
                 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(252,228,236,0.95) 100%)',
               border: `2px solid ${action.color}40`,
-              borderRadius: '20px',
-              padding: '2rem',
+              borderRadius: 'clamp(12px, 3vw, 20px)',
+              padding: 'clamp(1.25rem, 3vw, 2rem)',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               textAlign: 'center',
               boxShadow: '0 4px 20px rgba(212,117,125,0.1)',
               fontFamily: 'inherit',
+              minHeight: '120px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-5px)'
@@ -689,8 +778,8 @@ function HomeTab({
               e.currentTarget.style.boxShadow = '0 4px 20px rgba(212,117,125,0.1)'
             }}
           >
-            <action.icon size={40} color={action.color} style={{ marginBottom: '1rem' }} />
-            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#5d4037' }}>
+            <action.icon size={32} color={action.color} style={{ marginBottom: '0.75rem', minWidth: '32px', minHeight: '32px' }} />
+            <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', fontWeight: '600', color: '#5d4037' }}>
               {action.title}
             </div>
           </button>
@@ -699,17 +788,19 @@ function HomeTab({
 
       {/* Recent Activity */}
       <div
+        className="mobile-card"
         style={{
           background:
             'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(243,229,245,0.95) 100%)',
-          borderRadius: '24px',
+          borderRadius: 'clamp(16px, 3vw, 24px)',
           padding: '2rem',
           boxShadow: '0 8px 32px rgba(212,117,125,0.15)',
           border: '1px solid rgba(255,182,193,0.3)',
         }}
       >
         <h2
-          style={{ color: '#d4757d', marginTop: 0, fontSize: '1.75rem', marginBottom: '1.5rem' }}
+          className="section-title"
+          style={{ color: '#d4757d', marginTop: 0, fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', marginBottom: '1.5rem' }}
         >
           Recent Activity
         </h2>
@@ -762,12 +853,12 @@ function SymptomsTab({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '2rem',
+          marginBottom: 'clamp(1rem, 3vw, 2rem)',
           flexWrap: 'wrap',
           gap: '1rem',
         }}
       >
-        <h2 style={{ color: '#d4757d', fontSize: '2rem', margin: 0 }}>Symptom Tracker</h2>
+        <h2 className="section-title" style={{ color: '#d4757d', fontSize: 'clamp(1.5rem, 4vw, 2rem)', margin: 0 }}>Symptom Tracker</h2>
         <ActionButton onClick={() => openModal('symptom')}>
           <Plus size={20} />
           Log Symptom
@@ -857,12 +948,12 @@ function PhotosTab({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '2rem',
+          marginBottom: 'clamp(1rem, 3vw, 2rem)',
           flexWrap: 'wrap',
           gap: '1rem',
         }}
       >
-        <h2 style={{ color: '#d4757d', fontSize: '2rem', margin: 0 }}>Photo Timeline</h2>
+        <h2 className="section-title" style={{ color: '#d4757d', fontSize: 'clamp(1.5rem, 4vw, 2rem)', margin: 0 }}>Photo Timeline</h2>
         <ActionButton onClick={() => openModal('photo')}>
           <Plus size={20} />
           Add Photo
@@ -870,6 +961,7 @@ function PhotosTab({
       </div>
 
       <div
+        className="photo-grid"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
@@ -957,12 +1049,12 @@ function AppointmentsTab({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '2rem',
+          marginBottom: 'clamp(1rem, 3vw, 2rem)',
           flexWrap: 'wrap',
           gap: '1rem',
         }}
       >
-        <h2 style={{ color: '#d4757d', fontSize: '2rem', margin: 0 }}>Appointments</h2>
+        <h2 className="section-title" style={{ color: '#d4757d', fontSize: 'clamp(1.5rem, 4vw, 2rem)', margin: 0 }}>Appointments</h2>
         <ActionButton onClick={() => openModal('appointment')}>
           <Plus size={20} />
           Add Appointment
@@ -1027,12 +1119,12 @@ function JournalTab({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '2rem',
+          marginBottom: 'clamp(1rem, 3vw, 2rem)',
           flexWrap: 'wrap',
           gap: '1rem',
         }}
       >
-        <h2 style={{ color: '#d4757d', fontSize: '2rem', margin: 0 }}>Memory Journal</h2>
+        <h2 className="section-title" style={{ color: '#d4757d', fontSize: 'clamp(1.5rem, 4vw, 2rem)', margin: 0 }}>Memory Journal</h2>
         <ActionButton onClick={() => openModal('journal')}>
           <Plus size={20} />
           New Entry
@@ -1109,12 +1201,12 @@ function ChecklistTab({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '2rem',
+          marginBottom: 'clamp(1rem, 3vw, 2rem)',
           flexWrap: 'wrap',
           gap: '1rem',
         }}
       >
-        <h2 style={{ color: '#d4757d', fontSize: '2rem', margin: 0 }}>Pregnancy Checklist</h2>
+        <h2 className="section-title" style={{ color: '#d4757d', fontSize: 'clamp(1.5rem, 4vw, 2rem)', margin: 0 }}>Pregnancy Checklist</h2>
         <ActionButton onClick={() => openModal('todo')}>
           <Plus size={20} />
           Add Task
@@ -1188,20 +1280,21 @@ function ChecklistTab({
 function KicksTab() {
   return (
     <div className="animate-fadeIn">
-      <h2 style={{ color: '#d4757d', fontSize: '2rem', marginBottom: '2rem' }}>Kick Counter</h2>
+      <h2 className="section-title" style={{ color: '#d4757d', fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: 'clamp(1rem, 3vw, 2rem)' }}>Kick Counter</h2>
       <div
+        className="mobile-hero-card"
         style={{
           background:
             'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(252,228,236,0.95) 100%)',
           padding: '3rem',
-          borderRadius: '24px',
+          borderRadius: 'clamp(16px, 3vw, 24px)',
           boxShadow: '0 8px 32px rgba(212,117,125,0.15)',
           border: '1px solid rgba(255,182,193,0.3)',
           textAlign: 'center',
         }}
       >
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>👶</div>
-        <p style={{ color: '#8d6e63', fontSize: '1.1rem', marginBottom: '2rem' }}>
+        <div style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', marginBottom: '1rem' }}>👶</div>
+        <p style={{ color: '#8d6e63', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', marginBottom: 'clamp(1rem, 3vw, 2rem)' }}>
           Kick counting usually starts around week 28. This feature will help you track your
           baby&apos;s movements!
         </p>
@@ -1217,20 +1310,21 @@ function KicksTab() {
 function ContractionsTab() {
   return (
     <div className="animate-fadeIn">
-      <h2 style={{ color: '#d4757d', fontSize: '2rem', marginBottom: '2rem' }}>Contraction Timer</h2>
+      <h2 className="section-title" style={{ color: '#d4757d', fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: 'clamp(1rem, 3vw, 2rem)' }}>Contraction Timer</h2>
       <div
+        className="mobile-hero-card"
         style={{
           background:
             'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(252,228,236,0.95) 100%)',
           padding: '3rem',
-          borderRadius: '24px',
+          borderRadius: 'clamp(16px, 3vw, 24px)',
           boxShadow: '0 8px 32px rgba(212,117,125,0.15)',
           border: '1px solid rgba(255,182,193,0.3)',
           textAlign: 'center',
         }}
       >
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⏱️</div>
-        <p style={{ color: '#8d6e63', fontSize: '1.1rem', marginBottom: '2rem' }}>
+        <div style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', marginBottom: '1rem' }}>⏱️</div>
+        <p style={{ color: '#8d6e63', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', marginBottom: 'clamp(1rem, 3vw, 2rem)' }}>
           The contraction timer will help you track timing and frequency when labor begins!
         </p>
         <TipBox>
@@ -1253,21 +1347,25 @@ function ActionButton({
   return (
     <button
       onClick={onClick}
+      className="tap-highlight mobile-action-btn"
       style={{
         background: 'linear-gradient(135deg, #d4757d 0%, #f48fb1 100%)',
         color: 'white',
         border: 'none',
         borderRadius: '12px',
-        padding: '0.75rem 1.5rem',
+        padding: 'clamp(0.625rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: '0.5rem',
-        fontSize: '1rem',
+        fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
         fontWeight: '600',
         boxShadow: '0 4px 15px rgba(212,117,125,0.3)',
         transition: 'transform 0.2s ease',
         fontFamily: 'inherit',
+        minHeight: '44px',
+        whiteSpace: 'nowrap',
       }}
       onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
       onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
@@ -1282,11 +1380,12 @@ function EmptyState({ children }: { children: React.ReactNode }) {
     <div
       style={{
         background: 'rgba(255,255,255,0.6)',
-        padding: '3rem',
-        borderRadius: '16px',
+        padding: 'clamp(1.5rem, 4vw, 3rem)',
+        borderRadius: 'clamp(12px, 2vw, 16px)',
         textAlign: 'center',
         color: '#8d6e63',
         fontStyle: 'italic',
+        fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
       }}
     >
       {children}
@@ -1299,13 +1398,13 @@ function TipBox({ children }: { children: React.ReactNode }) {
     <div
       style={{
         background: 'linear-gradient(135deg, rgba(255,245,157,0.3) 0%, rgba(255,213,79,0.3) 100%)',
-        padding: '1.5rem',
-        borderRadius: '16px',
+        padding: 'clamp(1rem, 3vw, 1.5rem)',
+        borderRadius: 'clamp(12px, 2vw, 16px)',
         border: '1px solid rgba(255,213,79,0.3)',
-        marginTop: '1.5rem',
+        marginTop: 'clamp(1rem, 3vw, 1.5rem)',
       }}
     >
-      <p style={{ color: '#5d4037', margin: 0, lineHeight: '1.6' }}>{children}</p>
+      <p style={{ color: '#5d4037', margin: 0, lineHeight: '1.6', fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>{children}</p>
     </div>
   )
 }

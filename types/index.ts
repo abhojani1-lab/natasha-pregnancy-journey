@@ -22,7 +22,7 @@ export const MOODS: Record<Mood, { emoji: string; label: string; color: string }
   emotional: { emoji: '🥹', label: 'Emotional', color: 'bg-pink-100 text-pink-700 border-pink-300' },
 }
 
-export const WEEKLY_PROMPTS: Record<number, string[]> = {
+export const WEEKLY_PROMPTS: Record<number | 'default', string[]> = {
   4: [
     "How did you feel when you found out?",
     "What are your hopes for this journey?",

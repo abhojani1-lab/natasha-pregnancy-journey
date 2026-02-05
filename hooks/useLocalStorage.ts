@@ -1,43 +1,34 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 
-export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
-  // State to store our value
+export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
   const [storedValue, setStoredValue] = useState<T>(initialValue)
-  const [isInitialized, setIsInitialized] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  // Load from localStorage on mount
   useEffect(() => {
-    if (typeof window === 'undefined') return
-
     try {
       const item = window.localStorage.getItem(key)
       if (item) {
         setStoredValue(JSON.parse(item))
       }
     } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error)
+      console.warn(`Error reading localStorage key "${key}":`, error)
     }
-    setIsInitialized(true)
+    setIsHydrated(true)
   }, [key])
 
-  // Return a wrapped version of useState's setter function that persists to localStorage
-  const setValue = useCallback((value: T | ((prev: T) => T)) => {
+  const setValue = (value: T | ((val: T) => T)) => {
     try {
-      // Allow value to be a function so we have same API as useState
-      setStoredValue(prev => {
-        const valueToStore = value instanceof Function ? value(prev) : value
-        // Save to local storage
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore))
-        }
-        return valueToStore
-      })
+      const valueToStore = value instanceof Function ? value(storedValue) : value
+      setStoredValue(valueToStore)
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore))
+      }
     } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error)
+      console.warn(`Error setting localStorage key "${key}":`, error)
     }
-  }, [key])
+  }
 
-  return [storedValue, setValue]
+  return [isHydrated ? storedValue : initialValue, setValue]
 }
